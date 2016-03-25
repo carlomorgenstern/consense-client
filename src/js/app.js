@@ -1,7 +1,8 @@
 var angular = require('angular');
 (function(angular) {
-	angular.module('app', [require('angular-material')])
-		.config(['$mdDateLocaleProvider', function($mdDateLocaleProvider) {
+	var moment = require('moment')
+	angular.module('app', [require('angular-material'), require('./angular-ui-calendar.js')])
+		.config(function($mdDateLocaleProvider) {
 			// Example of a French localization.
 			$mdDateLocaleProvider.months = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
 			$mdDateLocaleProvider.shortMonths = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
@@ -25,11 +26,11 @@ var angular = require('angular');
 			};
 			$mdDateLocaleProvider.msgCalendar = 'Kalender';
 			$mdDateLocaleProvider.msgOpenCalendar = 'Kalender öffnen';
-		}])
+		})
 
-	.controller('AppCtrl',['$scope', '$timeout', function($scope, $timeout) {
+	.controller('AppCtrl', function($scope, $timeout) {
 		$scope.myDate = new Date();
-
+		$scope.eventSources = [];
 
 		// In this example, we set up our model using a class.
 		// Using a plain object works too. All that matters
@@ -92,5 +93,5 @@ var angular = require('angular');
 		};
 
 		this.dynamicItems = new DynamicItems();
-	}]);
+	});
 })(angular);

@@ -5,6 +5,7 @@
 	<link rel="stylesheet" href="css/styles.css">
 </head>
 <body ng-app="app" ng-strict-di ng-controller="AppCtrl as ctrl" class="fill-size" layout="column">
+	<script src='js/app.js'></script>
 		<md-toolbar>
 			<div class="md-toolbar-tools">
 				<h2>conSense<span class="hide show-gt-sm"> - easing course planning</span></h2>
@@ -16,14 +17,11 @@
 		</md-toolbar>
 		<div layout-xs="column" layout-sm="column" layout-gt-sm="row">
 			<md-content flex-gt-sm="30">
-				<md-input-container md-no-float class="md-block">
-          			<input placeholder="Suche">
-       			</md-input-container>
-       			<md-datepicker class="hide show-xs show-sm" ng-model="myDate" md-placeholder="Enter date"></md-datepicker>
-       			<md-input-container class="md-block no-margin side-padding">
+				<md-input-container class="md-block no-margin side-padding">
          			<input ng-model="myDate">
         		</md-input-container>
-        		<md-whiteframe class="md-whiteframe-6dp hide show-gt-sm" style="transform:scale(0.8);">
+        		<md-datepicker class="hide show-xs show-sm" ng-model="myDate" md-placeholder="Enter date"></md-datepicker>
+       			<md-whiteframe class="md-whiteframe-6dp hide show-gt-sm" style="transform:scale(0.8);">
        				<md-calendar class="fixed-calendar" ng-model="myDate"></md-calendar>
        			</md-whiteframe>
        			<md-autocomplete
@@ -53,9 +51,9 @@
 			</md-content>
 			<md-divider></md-divider>
 			<md-content flex-gt-sm="70">
+				<div ui-calendar ng-model="eventSources"></div>
 				Test22
 			</md-content>
 		</div>
-	<script src='js/app.js'></script>
 </body>
 </html>
