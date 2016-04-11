@@ -4,8 +4,9 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="css/styles.css">
 </head>
-<body ng-app="app" ng-strict-di ng-controller="AppCtrl as ctrl" class="fill-size" layout="column">
+<body class="fill-size" ng-app="app" ng-strict-di ng-controller="AppCtrl as mainCtrl" layout="column">
 	<script src='js/app.js'></script>
+		<!-- toolbar with collapsing title and menu button -->
 		<md-toolbar>
 			<div class="md-toolbar-tools">
 				<h2>conSense<span class="hide show-gt-sm"> - easing course planning</span></h2>
@@ -15,44 +16,48 @@
 				</md-button>	
 			</div>
 		</md-toolbar>
+
+		<!-- main content area -->
 		<div layout-xs="column" layout-sm="column" layout-gt-sm="row">
+			<!-- this content takes the left 30% on a big screen and is on top on a small screen -->
 			<md-content flex-gt-sm="30">
-				<md-input-container class="md-block no-margin side-padding">
-         			<input ng-model="myDate">
+				<!-- date input controls for the big screen -->
+				<md-input-container class="md-block hide show-gt-sm input-container-margin">
+         			<input ng-model="mainCtrl.selectedDate" placeholder="Anzuzeigendes Datum">
         		</md-input-container>
-        		<md-datepicker class="hide show-xs show-sm" ng-model="myDate" md-placeholder="Enter date"></md-datepicker>
-       			<md-whiteframe class="md-whiteframe-6dp hide show-gt-sm" style="transform:scale(0.8);">
-       				<md-calendar class="fixed-calendar" ng-model="myDate"></md-calendar>
-       			</md-whiteframe>
-       			<md-autocomplete
-			          ng-disabled="ctrl.isDisabled"
-			          md-no-cache="ctrl.noCache"
-			          md-selected-item="ctrl.selectedItem"
-			          md-search-text-change="ctrl.searchTextChange(ctrl.searchText)"
-			          md-search-text="ctrl.searchText"
-			          md-selected-item-change="ctrl.selectedItemChange(item)"
-			          md-items="item in ctrl.querySearch(ctrl.searchText)"
-			          md-item-text="item.display"
-			          md-min-length="0"
-			          placeholder="What is your favorite US state?">
+
+        		<!-- TODO: Fix calendar to scale with size of surrounding div (own directive) -->
+        		<div class="hide show-gt-sm whiteframe-6dp-margin" md-whiteframe="6">
+        			<md-calendar class="fixed-calendar" ng-model="mainCtrl.selectedDate" />
+        		</div>
+
+       			<!-- date input control for the small screen -->
+       			<md-datepicker class="hide show-xs show-sm" ng-model="mainCtrl.selectedDate" md-placeholder="Anzuzeigendes Datum"></md-datepicker>
+       			
+       			<!-- room input controls for the big screen -->
+       			
+   				<!-- room input controls for the small screen -->
+   				<md-autocomplete class="hide show-xs show-sm" md-selected-item="mainCtrl.selectedRoom" md-no-cache="true" md-min-length="0"
+			        md-search-text="mainCtrl.searchTextRoom"
+			        md-items="room in mainCtrl.queryRoomSearch(mainCtrl.searchTextRoom)"
+			        md-selected-item-change="mainCtrl.selectedRoomChange(room)"
+			        md-item-text="room.display"
+			    	placeholder="Anzuzeigender Raum">
 			        <md-item-template>
-			          <span md-highlight-text="ctrl.searchText" md-highlight-flags="^i">{{item.display}}</span>
+			          <span md-highlight-text="mainCtrl.searchTextRoom" md-highlight-flags="i">{{room.display}}</span>
 			        </md-item-template>
 			        <md-not-found>
-			          No states matching "{{ctrl.searchText}}" were found.
-			          <a ng-click="ctrl.newState(ctrl.searchText)">Create a new one!</a>
+			        	Kein passender Raum gefunden.
 			        </md-not-found>
-			      </md-autocomplete>
-       			<md-virtual-repeat-container id="vertical-container">
-    				<div md-virtual-repeat="item in ctrl.dynamicItems" md-on-demand="" class="repeated-item" flex="">
-       					{{item}}
-      				</div>
-   				</md-virtual-repeat-container>
+			    </md-autocomplete>
 			</md-content>
-			<md-divider></md-divider>
+
+			<!-- divider for content areas, that works in both directions -->
+			<md-divider class="bd-md-divider"></md-divider>
+
+			<!-- This content takes the right 70% on a big screen and is below on a small screen -->
 			<md-content flex-gt-sm="70">
 				<div ui-calendar ng-model="eventSources"></div>
-				Test22
 			</md-content>
 		</div>
 </body>

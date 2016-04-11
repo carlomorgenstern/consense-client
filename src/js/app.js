@@ -1,35 +1,76 @@
+"use strict";
 var angular = require('angular');
-(function(angular) {
-	var moment = require('moment')
+var moment = require('moment');
+(function(angular, moment) {
 	angular.module('app', [require('angular-material'), require('./angular-ui-calendar.js')])
 		.config(function($mdDateLocaleProvider) {
-			// Example of a French localization.
+			// configuration for angular material date controls
 			$mdDateLocaleProvider.months = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
 			$mdDateLocaleProvider.shortMonths = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
 			$mdDateLocaleProvider.days = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
 			$mdDateLocaleProvider.shortDays = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
 			$mdDateLocaleProvider.firstDayOfWeek = 1;
-			// Example uses moment.js to parse and format dates.
-			//			$mdDateLocaleProvider.parseDate = function(dateString) {
-			//				var m = moment(dateString, 'L', true);
-			//				return m.isValid() ? m.toDate() : new Date(NaN);
-			//			};
-			//			$mdDateLocaleProvider.formatDate = function(date) {
-			//				return moment(date).format('L');
-			//			};
 			$mdDateLocaleProvider.monthHeaderFormatter = function(date) {
 				return $mdDateLocaleProvider.shortMonths[date.getMonth()] + ' ' + date.getFullYear();
 			};
-
 			$mdDateLocaleProvider.weekNumberFormatter = function(weekNumber) {
 				return 'Woche ' + weekNumber;
 			};
 			$mdDateLocaleProvider.msgCalendar = 'Kalender';
 			$mdDateLocaleProvider.msgOpenCalendar = 'Kalender öffnen';
+
+			// configuration for date parsing by $mdDateLocale
+			$mdDateLocaleProvider.parseDate = function(dateString) {
+				var m = moment(dateString, 'DD.MM.YYYY', true);
+				return m.isValid() ? m.toDate() : new Date(NaN);
+			};
+			$mdDateLocaleProvider.formatDate = function(date) {
+				return moment(date).format('DD.MM.YYYY');
+			};
 		})
 
-	.controller('AppCtrl', function($scope, $timeout) {
-		$scope.myDate = new Date();
+	.controller('AppCtrl', function($scope, $timeout, $http, $q, $mdDateLocale) {
+		var mainCtrl = this;
+
+		// handling date changes
+		mainCtrl.selectedDate = new Date();
+
+		// handling room changes
+		mainCtrl.searchTextRoom = "";
+		mainCtrl.rooms = null;
+		$http.get("http://localhost:8080/api/rooms", {
+				responseType: "json"
+			})
+			.then(function(response) {
+				mainCtrl.rooms = response.data.map(function(room) {
+					return {
+						value: room.toLowerCase(),
+						display: room
+					};
+				});
+			}, function(error) {
+				console.log(error);
+			});
+		
+		this.selectedRoomChange = function(room) {
+			console.log('Room changed to ' + JSON.stringify(room));
+		};
+
+		var self = this;
+		this.queryRoomSearch = function(searchTextRoom) {
+			if (searchTextRoom === "") {
+				return $q.resolve(self.rooms);
+			} else {
+				var searchTextLower = searchTextRoom.toLowerCase();
+				return $q.resolve(self.rooms.filter(function(room) {
+					return (room.value.indexOf(searchTextLower) !== -1);
+				}));
+			}
+		};
+
+
+		// 
+
 		$scope.eventSources = [];
 
 		// In this example, we set up our model using a class.
@@ -94,4 +135,4 @@ var angular = require('angular');
 
 		this.dynamicItems = new DynamicItems();
 	});
-})(angular);
+})(angular, moment);
