@@ -18,13 +18,13 @@
     "angular-aria": "^1.5.0",
     "angular-material": "^1.0.6",
     "angular-messages": "^1.5.0",
-    "connect-gzip": "^0.1.6",
     "fullcalendar": "^2.6.1"
   },
   "devDependencies": {
     "browser-sync": "^2.11.1",
     "browserify": "^13.0.0",
     "browserify-ngannotate": "^2.0.0",
+    "connect-gzip": "^0.1.6",
     "connect-gzip-static": "^1.0.0",
     "del": "^2.2.0",
     "gulp": "^3.9.1",

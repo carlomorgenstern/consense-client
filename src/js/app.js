@@ -22,18 +22,18 @@ var moment = require('moment');
 			// configuration for date parsing by $mdDateLocale
 			$mdDateLocaleProvider.parseDate = function(dateString) {
 				var m = moment(dateString, 'DD.MM.YYYY', true);
-				return m.isValid() ? m.toDate() : new Date(NaN);
+				return m.isValid() ? m.toDate() : null;
 			};
 			$mdDateLocaleProvider.formatDate = function(date) {
 				return moment(date).format('DD.MM.YYYY');
 			};
 		})
 
-	.controller('AppCtrl', function($scope, $timeout, $http, $q, $mdDateLocale) {
+	.controller('AppCtrl', function($scope, $timeout, $http, $q) {
 		var mainCtrl = this;
 
-		// handling date changes
 		mainCtrl.selectedDate = new Date();
+		$scope.eventSources = [];
 
 		// handling room changes
 		mainCtrl.searchTextRoom = "";
@@ -51,9 +51,34 @@ var moment = require('moment');
 			}, function(error) {
 				console.log(error);
 			});
-		
+
 		this.selectedRoomChange = function(room) {
-			console.log('Room changed to ' + JSON.stringify(room));
+			if (room === undefined || room.display === "") {
+				$scope.eventSources.splice(0, $scope.eventSources.length);
+			} else {
+				var url = "http://localhost:8080/api/room/" + btoa(room.display);
+				$http.get(url, {
+						responseType: "json"
+					})
+					.then(function(response) {
+						$scope.eventSources.splice(0, $scope.eventSources.length);
+						var events = [];
+						response.data.forEach(function(entry) {
+							events.push({
+								title: entry.EventName,
+								start: entry.StartDate,
+								end: entry.EndDate,
+								description: "Dozent: "+entry.Speaker + " Raum: "+entry.Location
+							});
+						});
+						$scope.eventSources.push({
+							events: events,
+							editable: false
+						});
+					}, function(error) {
+						console.log(error);
+					});
+			}
 		};
 
 		var self = this;
@@ -67,72 +92,27 @@ var moment = require('moment');
 				}));
 			}
 		};
+	})
 
+	.directive('dateField', function($mdDateLocale) {
+		return {
+			require: 'ngModel',
+			link: function(scope, element, attrs, ngModelController) {
+				ngModelController.$parsers.push(function(data) {
+					// View to Model
+					var date = $mdDateLocale.parseDate(data);
 
-		// 
-
-		$scope.eventSources = [];
-
-		// In this example, we set up our model using a class.
-		// Using a plain object works too. All that matters
-		// is that we implement getItemAtIndex and getLength.
-		var DynamicItems = function() {
-			/**
-			 * @type {!Object<?Array>} Data pages, keyed by page number (0-index).
-			 */
-			this.loadedPages = {};
-
-			/** @type {number} Total number of items. */
-			this.numItems = 0;
-
-			/** @const {number} Number of items to fetch per request. */
-			this.PAGE_SIZE = 50;
-
-			this.fetchNumItems_();
-		};
-
-		// Required.
-		DynamicItems.prototype.getItemAtIndex = function(index) {
-			var pageNumber = Math.floor(index / this.PAGE_SIZE);
-			var page = this.loadedPages[pageNumber];
-
-			if (page) {
-				return page[index % this.PAGE_SIZE];
-			} else if (page !== null) {
-				this.fetchPage_(pageNumber);
+					// if the date field is not a valid date 
+					// then set a 'date' error flag by calling $setValidity
+					ngModelController.$setValidity('date', date !== null);
+					return date !== null ? date : undefined;
+				});
+				ngModelController.$formatters.push(function(data) {
+					// Model to View
+					return $mdDateLocale.formatDate(data);
+				});
 			}
 		};
-
-		// Required.
-		DynamicItems.prototype.getLength = function() {
-			return this.numItems;
-		};
-
-		DynamicItems.prototype.fetchPage_ = function(pageNumber) {
-			// Set the page to null so we know it is already being fetched.
-			this.loadedPages[pageNumber] = null;
-
-			// For demo purposes, we simulate loading more items with a timed
-			// promise. In real code, this function would likely contain an
-			// $http request.
-			$timeout(angular.noop, 300).then(angular.bind(this, function() {
-				this.loadedPages[pageNumber] = [];
-				var pageOffset = pageNumber * this.PAGE_SIZE;
-				for (var i = pageOffset; i < pageOffset + this.PAGE_SIZE; i++) {
-					this.loadedPages[pageNumber].push(i);
-				}
-			}));
-		};
-
-		DynamicItems.prototype.fetchNumItems_ = function() {
-			// For demo purposes, we simulate loading the item count with a timed
-			// promise. In real code, this function would likely contain an
-			// $http request.
-			$timeout(angular.noop, 300).then(angular.bind(this, function() {
-				this.numItems = 50000;
-			}));
-		};
-
-		this.dynamicItems = new DynamicItems();
 	});
-})(angular, moment);
+
+}(angular, moment));

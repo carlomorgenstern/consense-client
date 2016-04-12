@@ -18,38 +18,56 @@
 		</md-toolbar>
 
 		<!-- main content area -->
-		<div layout-xs="column" layout-sm="column" layout-gt-sm="row">
+		<div class="fill-size" layout-xs="column" layout-sm="column" layout-gt-sm="row">
 			<!-- this content takes the left 30% on a big screen and is on top on a small screen -->
 			<md-content flex-gt-sm="30">
-				<!-- date input controls for the big screen -->
-				<md-input-container class="md-block hide show-gt-sm input-container-margin">
-         			<input ng-model="mainCtrl.selectedDate" placeholder="Anzuzeigendes Datum">
-        		</md-input-container>
+				<!-- input controls for the big screen -->
+				<div class="hide show-gt-sm" layout="column">
+					<!-- date input controls -->
+					<md-input-container class="md-block input-container-margin">
+	         			<input date-field ng-model="mainCtrl.selectedDate" placeholder="Anzuzeigendes Datum">
+	        		</md-input-container>
 
-        		<!-- TODO: Fix calendar to scale with size of surrounding div (own directive) -->
-        		<div class="hide show-gt-sm whiteframe-6dp-margin" md-whiteframe="6">
-        			<md-calendar class="fixed-calendar" ng-model="mainCtrl.selectedDate" />
-        		</div>
+	        		<!-- TODO: Fix calendar to scale with size of surrounding div (own directive) -->
+	        		<div class="whiteframe-6dp-margin" md-whiteframe="6">
+	        			<md-calendar class="fixed-calendar" ng-model="mainCtrl.selectedDate"> </md-calendar>
+	        		</div>
 
-       			<!-- date input control for the small screen -->
-       			<md-datepicker class="hide show-xs show-sm" ng-model="mainCtrl.selectedDate" md-placeholder="Anzuzeigendes Datum"></md-datepicker>
-       			
-       			<!-- room input controls for the big screen -->
-       			
-   				<!-- room input controls for the small screen -->
-   				<md-autocomplete class="hide show-xs show-sm" md-selected-item="mainCtrl.selectedRoom" md-no-cache="true" md-min-length="0"
-			        md-search-text="mainCtrl.searchTextRoom"
-			        md-items="room in mainCtrl.queryRoomSearch(mainCtrl.searchTextRoom)"
-			        md-selected-item-change="mainCtrl.selectedRoomChange(room)"
-			        md-item-text="room.display"
-			    	placeholder="Anzuzeigender Raum">
-			        <md-item-template>
-			          <span md-highlight-text="mainCtrl.searchTextRoom" md-highlight-flags="i">{{room.display}}</span>
-			        </md-item-template>
-			        <md-not-found>
-			        	Kein passender Raum gefunden.
-			        </md-not-found>
-			    </md-autocomplete>
+	       			<!-- room input controls for the big screen -->
+	       			<md-autocomplete style="margin: 5px; min-width: 100px;" md-selected-item="mainCtrl.selectedRoom" md-no-cache="true" md-min-length="0"
+				        md-search-text="mainCtrl.searchTextRoom"
+				        md-items="room in mainCtrl.queryRoomSearch(mainCtrl.searchTextRoom)"
+				        md-selected-item-change="mainCtrl.selectedRoomChange(room)"
+				        md-item-text="room.display"
+				    	placeholder="Anzuzeigender Raum">
+				        <md-item-template>
+				          <span md-highlight-text="mainCtrl.searchTextRoom" md-highlight-flags="i">{{room.display}}</span>
+				        </md-item-template>
+				        <md-not-found>
+				        	Kein passender Raum gefunden.
+				        </md-not-found>
+				    </md-autocomplete>
+       			</div>
+       			<!-- input controls for the small screen -->
+       			<div class="hide show-xs show-sm" layout="row">
+	       			<!-- date input control -->
+	       			<md-datepicker flex="40" ng-model="mainCtrl.selectedDate" md-placeholder="Anzuzeigendes Datum"></md-datepicker>
+
+	   				<!-- room input control -->
+	   				<md-autocomplete flex="60" style="margin: 5px; min-width: 100px" md-selected-item="mainCtrl.selectedRoom" md-no-cache="true" md-min-length="0"
+				        md-search-text="mainCtrl.searchTextRoom"
+				        md-items="room in mainCtrl.queryRoomSearch(mainCtrl.searchTextRoom)"
+				        md-selected-item-change="mainCtrl.selectedRoomChange(room)"
+				        md-item-text="room.display"
+				    	placeholder="Anzuzeigender Raum">
+				        <md-item-template>
+				          <span md-highlight-text="mainCtrl.searchTextRoom" md-highlight-flags="i">{{room.display}}</span>
+				        </md-item-template>
+				        <md-not-found>
+				        	Kein passender Raum gefunden.
+				        </md-not-found>
+				    </md-autocomplete>
+			    </div>
 			</md-content>
 
 			<!-- divider for content areas, that works in both directions -->

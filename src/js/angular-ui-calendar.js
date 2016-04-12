@@ -10,6 +10,7 @@
 
 // Custom fix for browserify, including line 268
 var $ = require('jquery');
+var moment = require('moment');
 require('fullcalendar');
 module.exports = 'ui.calendar';
 
