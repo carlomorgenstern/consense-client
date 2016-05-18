@@ -1,200 +1,141 @@
+'use strict';
 var gulp = require('gulp');
 
-// utility dependencies
+// utilities
+var buffer = require('vinyl-buffer');
+var concat = require('gulp-concat');
 var del = require('del');
-var gzip = require('gulp-gzip');
 var gutil = require('gulp-util');
+var gzip = require('gulp-gzip');
+var merge = require('merge-stream');
+var source = require('vinyl-source-stream');
 var sourcemaps = require('gulp-sourcemaps');
 
 // needed for auto-refresh and browser syncing
 var browserSync = require('browser-sync').create();
-var reload = browserSync.reload;
 var connectGzip = require('connect-gzip-static');
 
 // minify html
 var htmlmin = require('gulp-htmlmin');
 
-// browserify node-like requires and bundle js
+// browserify and bundle js
 var browserify = require('browserify');
 var ngAnnotate = require('browserify-ngannotate');
 var watchify = require('watchify');
 
-// uglifiy / minify javascript
-var source = require('vinyl-source-stream');
-var buffer = require('vinyl-buffer');
+// minify js
 var uglify = require('gulp-uglify');
 
 // sass compiling and bundle & minify css
-var merge = require('merge-stream');
 var sass = require('gulp-sass');
-var concat = require('gulp-concat');
-var uncss = require('gulp-uncss');
-var cleanCSS = require('gulp-clean-css');
+// var uncss = require('gulp-uncss');
+var cleancss = require('gulp-clean-css');
 
 // source folders
-var src = {
-	html: 'src/*.html',
-	js: 'src/js/**/*.js',
+const src = {
+	root: 'src',
+	html: 'src/**/*.html',
 	jsEntry: 'src/js/app.js',
-	scss: 'src/scss/**/*.scss',
+	js: 'src/js/**/*.js',
 	css: 'src/css/**/*.css',
-	img: 'src/img/**'
+	scss: 'src/css/**/*.scss',
+	other: ['src/**', '!src/**/*.html', '!src/js/**/*.js',
+		'!src/css/**/*.css', '!src/css/**/*.scss'
+	]
 };
 
 // destination folders
-var dest = {
-	dev: {
-		html: 'dev/',
-		js: 'dev/js',
-		css: 'dev/css',
-		img: 'dev/img'
-	},
-	prod: {
-		html: 'prod/',
-		js: 'prod/js',
-		css: 'prod/css',
-		img: 'prod/img'
-	},
-	srcMaps: 'maps'
+const dest = {
+	root: 'dist/',
+	js: 'dist/js',
+	css: 'dist/css',
+	sourcemaps: 'maps'
 };
 
-// browserify instances
-var devBrowserify = browserify({
-	entries: src.jsEntry,
-	cache: {},
-	packageCache: {},
-	plugin: [watchify],
-	transform: [ngAnnotate],
-	debug: true
-});
-
-var prodBrowserify = browserify({
-	entries: src.jsEntry,
-	cache: {},
-	packageCache: {},
-	plugin: [watchify],
-	transform: [ngAnnotate]
-});
-
 // gzip options
-var gzipOptions = {
+const gzipOptions = {
 	gzipOptions: {
 		level: 9
 	}
 };
 
 // gulp tasks
-gulp.task('clean.dev', function() {
-	return del.sync('dev/');
+gulp.task('copyOther', () => {
+	return gulp.src(src.other)
+		.pipe(gulp.dest(dest.root));
 });
 
-gulp.task('clean.prod', function() {
-	return del.sync('prod/');
+gulp.task('clean', () => {
+	return del.sync(dest.root);
 });
 
-gulp.task('html.dev', function() {
+gulp.task('html', () => {
 	return gulp.src(src.html)
-		.pipe(gulp.dest(dest.dev.html));
-});
-
-gulp.task('html.prod', function() {
-	return gulp.src(src.html)
-		.pipe(htmlmin({
+		.pipe(gutil.env.type === 'prod' ? htmlmin({
 			removeComments: true,
 			collapseWhitespace: true,
 			conservativeCollapse: true,
 			keepClosingSlash: true
-		}))
-		.pipe(gulp.dest(dest.prod.html))
-		.pipe(gzip(gzipOptions))
-		.pipe(gulp.dest(dest.prod.html));
+		}) : gutil.noop())
+		.pipe(gulp.dest(dest.root))
+		.pipe(gutil.env.type === 'prod' ? gzip(gzipOptions) : gutil.noop())
+		.pipe(gutil.env.type === 'prod' ? gulp.dest(dest.root) : gutil.noop());
 });
 
-gulp.task('js.dev', function() {
-	return devBrowserify.bundle()
-		.pipe(source('app.js'))
+gulp.task('js', () => {
+	var b = browserify({
+		entries: src.jsEntry,
+		plugin: [watchify],
+		transform: [ngAnnotate],
+		debug: true
+	});
+
+	return b.bundle()
+		.pipe(source('bundle.js'))
 		.pipe(buffer())
 		.pipe(sourcemaps.init({
 			loadMaps: true
 		}))
-		.pipe(sourcemaps.write(dest.srcMaps))
-		.pipe(gulp.dest(dest.dev.js))
+		.pipe(gutil.env.type === 'prod' ? uglify().on('error', gutil.log) : gutil.noop())
+		.pipe(sourcemaps.write(dest.sourcemaps))
+		.pipe(gulp.dest(dest.js))
+		.pipe(gutil.env.type === 'prod' ? gzip(gzipOptions) : gutil.noop())
+		.pipe(gutil.env.type === 'prod' ? gulp.dest(dest.js) : gutil.noop())
 		.pipe(browserSync.stream());
 });
 
-gulp.task('js.prod', function() {
-	return prodBrowserify.bundle()
-		.pipe(source('app.js'))
-		.pipe(buffer())
-		.pipe(uglify())
-		.on('error', gutil.log)
-		.pipe(gulp.dest(dest.prod.js))
-		.pipe(gzip(gzipOptions))
-		.pipe(gulp.dest(dest.prod.js))
-		.pipe(browserSync.stream());
-});
-
-gulp.task('css.dev', function() {
+gulp.task('css', () => {
 	return merge(gulp.src(src.scss)
 			.pipe(sourcemaps.init())
-			.pipe(sass().on('error', sass.logError)), gulp.src(src.css)
+			.pipe(sass().on('error', sass.logError)),
+			gulp.src(src.css)
 			.pipe(sourcemaps.init()))
 		.pipe(concat('styles.css'))
-		.pipe(sourcemaps.write(dest.srcMaps))
-		.pipe(gulp.dest(dest.dev.css))
+		.pipe(gutil.env.type === 'prod' ? cleancss() : gutil.noop())
+		.pipe(sourcemaps.write(dest.sourcemaps))
+		.pipe(gulp.dest(dest.css))
+		.pipe(gutil.env.type === 'prod' ? gzip(gzipOptions) : gutil.noop())
+		.pipe(gutil.env.type === 'prod' ? gulp.dest(dest.css) : gutil.noop())
 		.pipe(browserSync.stream());
 });
 
-gulp.task('css.prod', function() {
-	return merge(gulp.src(src.scss)
-			.pipe(sass().on('error', sass.logError)), gulp.src(src.css))
-		.pipe(concat('styles.css'))
-		/*.pipe(uncss({
-            html: ['dev/index.html'],
-            ignore: [''],
-            timeout: 1000
-        }))*/
-		.pipe(cleanCSS())
-		.pipe(gulp.dest(dest.prod.css))
-		.pipe(gzip(gzipOptions))
-		.pipe(gulp.dest(dest.prod.css))
-		.pipe(browserSync.stream());
-});
+gulp.task('build', ['clean', 'copyOther', 'html', 'js', 'css']);
 
-gulp.task('copyRes.dev', function() {
-	return gulp.src(src.img)
-		.pipe(gulp.dest(dest.dev.img));
-});
-
-gulp.task('copyRes.prod', function() {
-	return gulp.src(src.img)
-		.pipe(gulp.dest(dest.prod.img));
-});
-
-gulp.task('serve.dev', ['clean.dev', 'html.dev', 'js.dev', 'css.dev', 'copyRes.dev'], function() {
+gulp.task('serve', ['build'], () => {
 	browserSync.init({
-		server: './dev'
-	});
-
-	gulp.watch(src.html, ['html.dev', reload]);
-	gulp.watch(src.js, ['js.dev']);
-	gulp.watch(src.scss, ['css.dev']);
-	gulp.watch(src.img, ['copyRes.dev', reload]);
-});
-
-gulp.task('serve.prod', ['clean.prod', 'html.prod', 'js.prod', 'css.prod', 'copyRes.prod'], function() {
-	browserSync.init({
-		server: './prod'
+		server: dest.root
 	}, function(err, bs) {
-		bs.addMiddleware("*", connectGzip('./prod'), {
-			override: true
-		});
+		if (gutil.env.type === 'prod') {
+			bs.addMiddleware("*", connectGzip(dest.root), {
+				override: true
+			});
+		}
 	});
 
-	gulp.watch(src.html, ['html.prod', reload]);
-	gulp.watch(src.js, ['js.prod']);
-	gulp.watch(src.scss, ['css.prod']);
-	gulp.watch(src.img, ['copyRes.prod', reload]);
+	gulp.watch(src.other, ['copyOther', browserSync.reload]);
+	gulp.watch(src.html, ['html', browserSync.reload]);
+	gulp.watch(src.js, ['js']);
+	gulp.watch([src.css, src.scss], ['css']);
 });
 
-gulp.task('default', ['serve.dev']);
+gulp.task('default', ['serve']);

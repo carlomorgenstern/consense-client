@@ -1,13 +1,13 @@
 {
   "name": "consense-client",
-  "version": "0.1.0",
-  "description": "Das Frontend (WebApp) der conSense-Software",
+  "version": "0.9.0",
+  "description": "Client application of the Consense project",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/carlomorgenstern/consense-client.git"
   },
   "author": "Carlo Morgenstern",
-  "license": "LGPL-3.0",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/carlomorgenstern/consense-client/issues"
   },
@@ -24,7 +24,6 @@
     "browser-sync": "^2.11.1",
     "browserify": "^13.0.0",
     "browserify-ngannotate": "^2.0.0",
-    "connect-gzip": "^0.1.6",
     "connect-gzip-static": "^1.0.0",
     "del": "^2.2.0",
     "gulp": "^3.9.1",
