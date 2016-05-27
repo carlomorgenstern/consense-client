@@ -34,3 +34,5 @@ node_modules
 
 # Distribution directory
 dist/
+
+# Vendor directory

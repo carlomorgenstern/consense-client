@@ -5,6 +5,7 @@ var gulp = require('gulp');
 var buffer = require('vinyl-buffer');
 var concat = require('gulp-concat');
 var del = require('del');
+var flatmap = require('gulp-flatmap');
 var gutil = require('gulp-util');
 var gzip = require('gulp-gzip');
 var merge = require('merge-stream');
@@ -35,14 +36,31 @@ var cleancss = require('gulp-clean-css');
 const src = {
 	root: 'src',
 	html: 'src/**/*.html',
-	jsEntry: 'src/js/app.js',
+	jsEntry: 'src/js/index.js',
 	js: 'src/js/**/*.js',
 	css: 'src/css/**/*.css',
-	scss: 'src/css/**/*.scss',
+	scss: 'src/css/**.scss',
 	other: ['src/**', '!src/**/*.html', '!src/js/**/*.js',
 		'!src/css/**/*.css', '!src/css/**/*.scss'
 	]
 };
+
+// vendor folders
+const vendor = {
+	jsRoot: 'vendor/js/',
+	cssRoot: 'vendor/css/',
+	js: 'vendor/js/**/*.js',
+	css: 'vendor/css/**/*.css',
+	libs: [{
+		name: 'angular-material',
+		files: ['node_modules/angular-material/angular-material.css']
+	}, {
+		name: 'fullcalendar',
+		files: ['node_modules/fullcalendar/dist/fullcalendar.css',
+			'node_modules/fullcalendar/dist/lang/de.js'
+		]
+	}]
+}
 
 // destination folders
 const dest = {
@@ -69,6 +87,24 @@ gulp.task('clean', () => {
 	return del.sync(dest.root);
 });
 
+gulp.task('updateVendors', function() {
+	var vendorTasks = vendor.libs.map(function(lib) {
+		return gulp.src(lib.files)
+			.pipe(flatmap(function(stream, file) {
+				var destDir;
+				var path = file.path.toString();
+				if (path.endsWith('.js')) {
+					destDir = vendor.jsRoot + lib.name;
+				} else if (path.endsWith('.css')) {
+					destDir = vendor.cssRoot + lib.name;
+				}
+				return stream.pipe(gulp.dest(destDir));
+			}));
+	});
+
+	return merge(vendorTasks);
+});
+
 gulp.task('html', () => {
 	return gulp.src(src.html)
 		.pipe(gutil.env.type === 'prod' ? htmlmin({
@@ -82,7 +118,7 @@ gulp.task('html', () => {
 		.pipe(gutil.env.type === 'prod' ? gulp.dest(dest.root) : gutil.noop());
 });
 
-gulp.task('js', () => {
+gulp.task('js', ['updateVendors'], () => {
 	var b = browserify({
 		entries: src.jsEntry,
 		plugin: [watchify],
@@ -104,11 +140,11 @@ gulp.task('js', () => {
 		.pipe(browserSync.stream());
 });
 
-gulp.task('css', () => {
+gulp.task('css', ['updateVendors'], () => {
 	return merge(gulp.src(src.scss)
 			.pipe(sourcemaps.init())
 			.pipe(sass().on('error', sass.logError)),
-			gulp.src(src.css)
+			gulp.src([src.css, vendor.css])
 			.pipe(sourcemaps.init()))
 		.pipe(concat('styles.css'))
 		.pipe(gutil.env.type === 'prod' ? cleancss() : gutil.noop())
@@ -119,7 +155,7 @@ gulp.task('css', () => {
 		.pipe(browserSync.stream());
 });
 
-gulp.task('build', ['clean', 'copyOther', 'html', 'js', 'css']);
+gulp.task('build', ['clean', 'updateVendors', 'copyOther', 'html', 'js', 'css']);
 
 gulp.task('serve', ['build'], () => {
 	browserSync.init({
