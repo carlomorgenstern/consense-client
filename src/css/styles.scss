@@ -1,0 +1,84 @@
+// make divs fill space
+.fill-size {
+  height: 100%;
+  width: 100%;
+}
+
+// hideing error-spacer for dateinput container
+.dateinput-container > .md-errors-spacer {
+    display: none;
+}
+
+// both directions md-divider
+.bd-md-divider {
+    border-right-width: 1px;
+    border-right-style: solid;
+    border-right-color: rgba(0, 0, 0, 0.12);
+    margin: 2px;
+}
+
+// style fix for an always open md-calendar control
+// scaled in size with an css-transform
+.whiteframe-calendar-container {
+  margin: 6px auto 6px auto;
+  max-width: 340px;
+}
+
+.fixed-calendar {
+  width: 340px;
+  height: 348px;
+  display: block;
+}
+
+.fixed-calendar .md-calendar-scroll-mask {
+   width: 340px !important;
+}
+
+.fixed-calendar .md-virtual-repeat-scroller {
+  width: 340px;
+  height: 308px;
+}
+
+// viewTabs
+.viewTabs {
+    background: #f6f6f6;
+    border: 1px solid #e1e1e1;
+}
+
+.padder {
+  height:10px;
+  width:10px;
+}
+
+.side-margin {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.no-margin-bottom {
+  margin-bottom: 0px;
+}
+// others
+// #vertical-container {
+//     min-height: 300px;
+//     width: 100%;
+// }
+// .repeated-item {
+//     border-bottom: 1px dotted #757575;
+//     box-sizing: border-box;
+//     height: 50px;
+//     overflow: hidden;
+//     margin-right: 16px;
+// }
+// md-virtual-repeat-container {
+//   border: solid 1px grey; 
+// }
+
+// .no-margin {
+//   margin:0px !important;
+// }
+
+// .side-padding {
+//   padding-left: 10px;
+//   padding-right: 10px;
+// }
