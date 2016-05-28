@@ -122,11 +122,12 @@ gulp.task('js', ['updateVendors'], () => {
 	var b = browserify({
 		entries: src.jsEntry,
 		plugin: [watchify],
-		transform: [ngAnnotate],
+		//transform: [ngAnnotate],
 		debug: true
 	});
 
 	return b.bundle()
+		.on('error', gutil.log)
 		.pipe(source('bundle.js'))
 		.pipe(buffer())
 		.pipe(sourcemaps.init({

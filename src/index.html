@@ -53,15 +53,15 @@
 	        		<div class='padder'></div>
 
 	       			<!-- course input controls for the big screen -->
-	       			<md-autocomplete ng-show='mainCtrl.selectedTab == 0' class='side-margin' md-whiteframe='6' md-selected-item='mainCtrl.course.selected' 
+	       			<md-autocomplete ng-show='mainCtrl.selectedTab == 0' class='side-margin' md-whiteframe='6' md-selected-item='mainCtrl.courses.selected' 
 	       				md-no-cache='true' md-min-length='0'
-				        md-search-text='mainCtrl.course.searchText'
-				        md-items='item in mainCtrl.course.querySearch(mainCtrl.course.searchText)'
-				        md-selected-item-change='mainCtrl.course.selectedChange(item)'
+				        md-search-text='mainCtrl.courses.searchText'
+				        md-items='item in mainCtrl.courses.querySearch(mainCtrl.courses.searchText)'
+				        md-selected-item-change='mainCtrl.courses.selectedChange(item)'
 				        md-item-text='item.display'
 				    	placeholder='Anzuzeigender Kurs'>
 				        <md-item-template>
-				          <span md-highlight-text='mainCtrl.course.searchText' md-highlight-flags='i'>{{item.display}}</span>
+				          <span md-highlight-text='mainCtrl.courses.searchText' md-highlight-flags='i'>{{item.display}}</span>
 				        </md-item-template>
 				        <md-not-found>
 				        	Kein passender Kurs gefunden.
@@ -69,15 +69,15 @@
 				    </md-autocomplete>
 
 				    <!-- speaker input controls for the big screen -->
-	       			<md-autocomplete ng-show='mainCtrl.selectedTab == 1' class='side-margin' md-whiteframe='6' md-selected-item='mainCtrl.speaker.selected' 
+	       			<md-autocomplete ng-show='mainCtrl.selectedTab == 1' class='side-margin' md-whiteframe='6' md-selected-item='mainCtrl.speakers.selected' 
 	       				md-no-cache='true' md-min-length='0'
-				        md-search-text='mainCtrl.speaker.searchText'
-				        md-items='item in mainCtrl.speaker.querySearch(mainCtrl.speaker.searchText)'
-				        md-selected-item-change='mainCtrl.speaker.selectedChange(item)'
+				        md-search-text='mainCtrl.speakers.searchText'
+				        md-items='item in mainCtrl.speakers.querySearch(mainCtrl.speakers.searchText)'
+				        md-selected-item-change='mainCtrl.speakers.selectedChange(item)'
 				        md-item-text='item.display'
 				    	placeholder='Anzuzeigender Dozent'>
 				        <md-item-template>
-				          <span md-highlight-text='mainCtrl.speaker.searchText' md-highlight-flags='i'>{{item.display}}</span>
+				          <span md-highlight-text='mainCtrl.speakers.searchText' md-highlight-flags='i'>{{item.display}}</span>
 				        </md-item-template>
 				        <md-not-found>
 				        	Kein passender Dozent gefunden.
@@ -85,15 +85,15 @@
 				    </md-autocomplete>
 
 	       			<!-- room input controls for the big screen -->
-	       			<md-autocomplete ng-show='mainCtrl.selectedTab == 2' class='side-margin' md-whiteframe='6' md-selected-item='mainCtrl.room.selected' 
+	       			<md-autocomplete ng-show='mainCtrl.selectedTab == 2' class='side-margin' md-whiteframe='6' md-selected-item='mainCtrl.rooms.selected' 
 	       				md-no-cache='true' md-min-length='0'
-				        md-search-text='mainCtrl.room.searchText'
-				        md-items='item in mainCtrl.room.querySearch(mainCtrl.room.searchText)'
-				        md-selected-item-change='mainCtrl.room.selectedChange(item)'
+				        md-search-text='mainCtrl.rooms.searchText'
+				        md-items='item in mainCtrl.rooms.querySearch(mainCtrl.rooms.searchText)'
+				        md-selected-item-change='mainCtrl.rooms.selectedChange(item)'
 				        md-item-text='item.display'
 				    	placeholder='Anzuzeigender Raum'>
 				        <md-item-template>
-				          <span md-highlight-text='mainCtrl.room.searchText' md-highlight-flags='i'>{{item.display}}</span>
+				          <span md-highlight-text='mainCtrl.rooms.searchText' md-highlight-flags='i'>{{item.display}}</span>
 				        </md-item-template>
 				        <md-not-found>
 				        	Kein passender Raum gefunden.
@@ -104,10 +104,10 @@
        			<!-- input controls for the small screen -->
        			<div class='hide show-xs show-sm' layout='row'>
 	       			<!-- date input control -->
-	       			<md-datepicker flex='40' ng-model='mainCtrl.selectedDate' md-placeholder='Anzuzeigendes Datum'></md-datepicker>
+	       			<md-datepicker  ng-model='mainCtrl.selectedDate' md-placeholder='Anzuzeigendes Datum'></md-datepicker>
 
 	   				<!-- room input control -->
-	   				<md-autocomplete flex='60' style='margin: 5px; min-width: 100px' md-selected-item='mainCtrl.selectedRoom' md-no-cache='true' md-min-length='0'
+	   				<md-autocomplete flex='50' style='margin: 5px; min-width: 50px' md-selected-item='mainCtrl.selectedRoom' md-no-cache='true' md-min-length='0'
 				        md-search-text='mainCtrl.searchTextRoom'
 				        md-items='room in mainCtrl.queryRoomSearch(mainCtrl.searchTextRoom)'
 				        md-selected-item-change='mainCtrl.selectedRoomChange(room)'

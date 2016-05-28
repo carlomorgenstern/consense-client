@@ -4,101 +4,105 @@ module.exports = ['$http', '$q', function($http, $q) {
 	var ctrl = this;
 
 	// variables
-	ctrl.selectedDate = new Date();
 	ctrl.selectedTab = 0;
-
-	function createItemObject(type, apiCall) {
-		var items = [];
-
-		var updateItems = function() {
-			$http.get(apiCall, {
-					responseType: "json"
-				})
-				.then(function(response) {
-					items = response.data.map(function(item) {
-						return {
-							value: item.toLowerCase(),
-							display: item
-						};
-					});
-				}, function(error) {
-					console.log(error);
-				});
-		};
-
-		updateItems();
-
-		var querySearch = function(searchText) {
-			if (searchText === "") {
-				return $q.resolve(items);
-			} else {
-				var searchTextLower = searchText.toLowerCase();
-				return $q.resolve(items.filter(function(item) {
-					return (item.value.indexOf(searchTextLower) !== -1);
-				}));
-			}
-		};
-
-		var selectedChange = function(newItem) {
-			console.log('newItem', newItem);
-		};
-
-		return {
-			items: items,
-			updateItems: updateItems,
-			selected: null,
-			searchText: '',
-			querySearch: querySearch,
-			selectedChange: selectedChange
-		};
-
-	}
-
-	ctrl.course = createItemObject('course', 'http://localhost:8080/api/courses');
-	ctrl.speaker = createItemObject('speaker', 'http://localhost:8080/api/speakers');
-	ctrl.room = createItemObject('room', 'http://localhost:8080/api/rooms');
-
-
-	// tab change handler
-	ctrl.selectedTab = 0;
-
-
-	// scope variables
 	ctrl.selectedDate = new Date();
-	ctrl.searchTextRoom = "";
 	ctrl.eventSources = [];
-	ctrl.rooms = [];
+
+	// handlers for courses, speakers, rooms
+	ctrl.courses = createItemHandler('course', 'http://localhost:8080/api/courses');
+	ctrl.speakers = createItemHandler('speaker', 'http://localhost:8080/api/speakers');
+	ctrl.rooms = createItemHandler('room', 'http://localhost:8080/api/rooms', "http://localhost:8080/api/room/");
 
 	ctrl.calendarConfig = {
 		lang: 'de'
 	};
 
-	ctrl.selectedRoomChange = function(room) {
-		if (room === undefined || room.display === "") {
-			ctrl.eventSources.splice(0, ctrl.eventSources.length);
-		} else {
-			var url = "http://localhost:8080/api/room/" + btoa(room.display);
-			$http.get(url, {
+	function createItemHandler(type, apiCall, apiEventCall) {
+		var allItems = [];
+		var eventsForItem = [];
+		var updateItemsDeferred;
+
+		var updateItems = function() {
+			if (updateItemsDeferred) {
+				return updateItemsDeferred.promise;
+			}
+
+			updateItemsDeferred = $q.defer();
+			$http.get(apiCall, {
 					responseType: "json"
 				})
 				.then(function(response) {
-					ctrl.eventSources.splice(0, ctrl.eventSources.length);
-					var events = [];
-					response.data.forEach(function(entry) {
-						events.push({
-							title: entry.EventName,
-							start: entry.StartDate,
-							end: entry.EndDate,
-							description: "Dozent: " + entry.Speaker + " Raum: " + entry.Location
-						});
+					allItems = response.data.map(function(item) {
+						return {
+							value: item.toLowerCase(),
+							display: item
+						};
 					});
-					ctrl.eventSources.push({
-						events: events,
-						editable: false
-					});
+					$q.resolve();
+					updateItemsDeferred = null;
 				}, function(error) {
-					console.log(error);
+					$q.reject(error);
+					updateItemsDeferred = null;
 				});
-		}
-	};
+			return updateItemsDeferred.promise;
+		};
+
+		var querySearch = function(searchText) {
+			if (searchText === "") {
+				return $q.resolve(allItems);
+			} else {
+				var searchTextLower = searchText.toLowerCase();
+				if (allItems.length === 0) {
+					return updateItems().then(function() {
+						return $q.resolve(allItems.filter(function(item) {
+							return (item.value.indexOf(searchTextLower) !== -1);
+						}));
+					});
+				} else {
+					return $q.resolve(allItems.filter(function(item) {
+						return (item.value.indexOf(searchTextLower) !== -1);
+					}));
+				}
+			}
+		};
+
+		var selectedChange = function(newItem) {
+			if (newItem === undefined || newItem.display === "") {
+				eventsForItem.splice(0, eventsForItem.length);
+				return $q.resolve();
+			} else {
+				var deferred = $q.defer();
+				var url = apiEventCall + btoa(newItem);
+				$http.get(url, {
+						responseType: "json"
+					})
+					.then(function(response) {
+						eventsForItem.splice(0, eventsForItem.length);
+						response.data.forEach(function(entry) {
+							eventsForItem.push({
+								title: entry.EventName,
+								start: entry.StartDate,
+								end: entry.EndDate,
+								description: "Dozent: " + entry.Speaker + " Raum: " + entry.Location
+							});
+						});
+						deferred.resolve();
+						console.log(eventsForItem);
+					}, function(error) {
+						deferred.reject(error);
+					});
+				return deferred.promise;
+			}
+		};
+
+		updateItems();
+
+		return {
+			selected: null,
+			searchText: '',
+			updateItems: updateItems,
+			querySearch: querySearch,
+			selectedChange: selectedChange
+		};
+	}
 }];
