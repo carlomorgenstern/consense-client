@@ -5,7 +5,7 @@
 }
 
 // hideing error-spacer for dateinput container
-.dateinput-container > .md-errors-spacer {
+.dateinput-container .md-errors-spacer {
     display: none;
 }
 
@@ -39,10 +39,49 @@
   height: 308px;
 }
 
+// datepicker fix for small devices (minimal width and shrinking space between components)
+.small-md-datepicker {
+  min-width: 210px;
+}
+
+@media (max-width: 480px) {
+.small-md-datepicker {
+  min-width: 180px;
+}
+.small-md-datepicker .md-datepicker-button,.md-datepicker-input-container {
+  margin: 0px !important;
+} }
+
 // viewTabs
 .viewTabs {
-    background: #f6f6f6;
-    border: 1px solid #e1e1e1;
+  background: #f6f6f6;
+  border: 1px solid #e1e1e1;
+}
+
+.buttonBar {
+  background: #ef5350;
+}
+
+.viewButton {
+  color: white !important;
+  height: 46px;
+  margin-top: 1px;
+  margin-bottom: 1px;
+}
+
+.monthHeading {
+  color: white;
+  margin: 1px 8px 1px 8px;
+  padding: 0px 6px 0px 6px;
+}
+
+@media (max-width: 959px) {
+.buttonBar {
+  height: 32px;
+}
+.viewButton {
+  height: 30px;
+}
 }
 
 .padder {
@@ -57,6 +96,10 @@
 
 .no-margin-bottom {
   margin-bottom: 0px;
+}
+
+.margin-5 {
+  margin: 5px;
 }
 // others
 // #vertical-container {

@@ -1,8 +1,9 @@
+<!DOCTYPE html>
 <html>
 <head>
 	<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
 	<meta name='viewport' content='width=device-width, initial-scale=1'>
-	<link rel='stylesheet' href='css/styles.css' type='text/css' media='screen,projection'>
+	<link rel='stylesheet' href='css/styles.css' type='text/css' media='screen'>
 	<script src='js/bundle.js'></script>
 	<title>ConSense</title>
 </head>
@@ -12,27 +13,27 @@
 			<div class='md-toolbar-tools'>
 				<h2>ConSense</h2>
 				<span flex></span>
-				<md-button class='md-icon-button' aria-label='Menu'>
+				<md-button class='md-icon-button' aria-label='Menü'>
 					<md-icon md-svg-icon='img/icons/ic_menu.svg'></md-icon>
 				</md-button>	
 			</div>
 		</md-toolbar>
 
 		<!-- tabs for the different views -->
-		<md-tabs class='viewTabs' md-stretch-tabs='always' md-selected='mainCtrl.selectedTab'>
+		<md-tabs md-center-tabs class='viewTabs' md-stretch-tabs='always' md-selected='mainCtrl.selectedTab'>
 			<md-tab md-on-select='mainCtrl.selectedTab = 0'>
-				<md-tab-label>Kurs<span class='hide show-gt-sm'>plan</span>
+				<md-tab-label>Kurs<span class='hide show-gt-sm'>plan</span></md-tab-label>
 			</md-tab>
 			<md-tab md-on-select='mainCtrl.selectedTab = 1'>
-				<md-tab-label>Dozent<span class='hide show-gt-sm'>enplan</span>
+				<md-tab-label>Dozent<span class='hide show-gt-sm'>enplan</span></md-tab-label>
 			</md-tab>
 			<md-tab md-on-select='mainCtrl.selectedTab = 2'>
-				<md-tab-label>Raum<span class='hide show-gt-sm'>plan</span>
+				<md-tab-label>Raum<span class='hide show-gt-sm'>plan</span></md-tab-label>
 			</md-tab>
 		</md-tabs>
 
 		<!-- main content area -->
-		<div class='fill-size' layout-xs='column' layout-sm='column' layout-gt-sm='row'>
+		<div layout-xs='column' layout-sm='column' layout-gt-sm='row' class='fill-size'>
 			<!-- this content takes the left 30% on a big screen and is on top on a small screen -->
 			<md-content flex-gt-sm='30'>
 				<!-- input controls for the big screen -->
@@ -41,12 +42,12 @@
 
 					<!-- date input controls -->
 					<md-input-container class='dateinput-container side-margin no-margin-bottom'>
-	         			<input date-field ng-model='mainCtrl.selectedDate' placeholder='Anzuzeigendes Datum'>
+	         			<input date-field ng-model='mainCtrl.selectedDate' placeholder='Anzuzeigendes Datum' ng-change='mainCtrl.selectedDateChange(mainCtrl.selectedDate)'>
 	        		</md-input-container>
 
 	        		<!-- TODO: Fix calendar to scale with size of surrounding div (own directive) -->
 	        		<div class='whiteframe-calendar-container' md-whiteframe='6'>
-	        			<md-calendar class='fixed-calendar' ng-model='mainCtrl.selectedDate'> </md-calendar>
+	        			<md-calendar class='fixed-calendar' ng-model='mainCtrl.selectedDate' ng-change='mainCtrl.selectedDateChange(mainCtrl.selectedDate)'> </md-calendar>
 	        		</div>
 
 	        		<div class='padder'></div>
@@ -102,19 +103,52 @@
        			</div>
 
        			<!-- input controls for the small screen -->
-       			<div class='hide show-xs show-sm' layout='row'>
+       			<div class='hide show-xs show-sm' layout='row' layout-align='center center'>
 	       			<!-- date input control -->
-	       			<md-datepicker  ng-model='mainCtrl.selectedDate' md-placeholder='Anzuzeigendes Datum'></md-datepicker>
+	       			<md-datepicker flex='40' class='small-md-datepicker' ng-model='mainCtrl.selectedDate' ng-change='mainCtrl.selectedDateChange(mainCtrl.selectedDate)' md-placeholder='Anzuzeigendes Datum'></md-datepicker>
 
-	   				<!-- room input control -->
-	   				<md-autocomplete flex='50' style='margin: 5px; min-width: 50px' md-selected-item='mainCtrl.selectedRoom' md-no-cache='true' md-min-length='0'
-				        md-search-text='mainCtrl.searchTextRoom'
-				        md-items='room in mainCtrl.queryRoomSearch(mainCtrl.searchTextRoom)'
-				        md-selected-item-change='mainCtrl.selectedRoomChange(room)'
-				        md-item-text='room.display'
+				    <!-- course input controls for the small screen -->
+	       			<md-autocomplete ng-show='mainCtrl.selectedTab == 0' flex='60' class='margin-5' md-selected-item='mainCtrl.courses.selected' 
+	       				md-no-cache='true' md-min-length='0'
+				        md-search-text='mainCtrl.courses.searchText'
+				        md-items='item in mainCtrl.courses.querySearch(mainCtrl.courses.searchText)'
+				        md-selected-item-change='mainCtrl.courses.selectedChange(item)'
+				        md-item-text='item.display'
+				    	placeholder='Anzuzeigender Kurs'>
+				        <md-item-template>
+				          <span md-highlight-text='mainCtrl.courses.searchText' md-highlight-flags='i'>{{item.display}}</span>
+				        </md-item-template>
+				        <md-not-found>
+				        	Kein passender Kurs gefunden.
+				        </md-not-found>
+				    </md-autocomplete>
+
+				    <!-- speaker input controls for the small screen -->
+	       			<md-autocomplete ng-show='mainCtrl.selectedTab == 1' flex='60' class='margin-5' md-selected-item='mainCtrl.speakers.selected' 
+	       				md-no-cache='true' md-min-length='0'
+				        md-search-text='mainCtrl.speakers.searchText'
+				        md-items='item in mainCtrl.speakers.querySearch(mainCtrl.speakers.searchText)'
+				        md-selected-item-change='mainCtrl.speakers.selectedChange(item)'
+				        md-item-text='item.display'
+				    	placeholder='Anzuzeigender Dozent'>
+				        <md-item-template>
+				          <span md-highlight-text='mainCtrl.speakers.searchText' md-highlight-flags='i'>{{item.display}}</span>
+				        </md-item-template>
+				        <md-not-found>
+				        	Kein passender Dozent gefunden.
+				        </md-not-found>
+				    </md-autocomplete>
+
+	       			<!-- room input controls for the small screen -->
+	       			<md-autocomplete ng-show='mainCtrl.selectedTab == 2' flex='60' class='margin-5' md-selected-item='mainCtrl.rooms.selected' 
+	       				md-no-cache='true' md-min-length='0'
+				        md-search-text='mainCtrl.rooms.searchText'
+				        md-items='item in mainCtrl.rooms.querySearch(mainCtrl.rooms.searchText)'
+				        md-selected-item-change='mainCtrl.rooms.selectedChange(item)'
+				        md-item-text='item.display'
 				    	placeholder='Anzuzeigender Raum'>
 				        <md-item-template>
-				          <span md-highlight-text='mainCtrl.searchTextRoom' md-highlight-flags='i'>{{room.display}}</span>
+				          <span md-highlight-text='mainCtrl.rooms.searchText' md-highlight-flags='i'>{{item.display}}</span>
 				        </md-item-template>
 				        <md-not-found>
 				        	Kein passender Raum gefunden.
@@ -127,8 +161,33 @@
 			<md-divider class='bd-md-divider'></md-divider>
 
 			<!-- This content takes the right 70% on a big screen and is below on a small screen -->
-			<md-content flex-gt-sm='70'>
-				<div ui-calendar='mainCtrl.calendarConfig' ng-model='mainCtrl.eventSources'></div>
+			<md-content flex flex-gt-sm='70' layout='column'>
+				<section layout='row' layout-align='center center' class='hide show-gt-xs buttonBar'>
+					<md-button class='md-icon-button' aria-label='Frühere Ansicht' ng-click='mainCtrl.previousCalendarView()'>
+						<md-icon md-svg-icon='img/icons/ic_chevron_left.svg'></md-icon>
+					</md-button>
+					<div flex></div>
+					<md-button class='viewButton' ng-click='mainCtrl.changeCalendarView("agendaWeek")'>Wochenansicht</md-button>
+					<md-button class='viewButton' ng-click='mainCtrl.changeCalendarView("agendaDay")'>Tagesansicht</md-button>
+					<div flex></div>
+					<md-button class='md-icon-button' aria-label='Spätere Ansicht' ng-click='mainCtrl.nextCalendarView()'>
+						<md-icon md-svg-icon='img/icons/ic_chevron_right.svg'></md-icon>
+					</md-button>
+				</section>
+				<section layout='row' layout-align='center center' class='buttonBar'>
+					<md-button class='hide show-xs md-icon-button' aria-label='Frühere Ansicht' ng-click='mainCtrl.previousCalendarView()'>
+						<md-icon md-svg-icon='img/icons/ic_chevron_left.svg'></md-icon>
+					</md-button>
+					<h3 class='monthHeading'>{{mainCtrl.calendarTitle}}</h3>
+					<div flex></div>
+					<md-button class='viewButton' ng-click='mainCtrl.setToday()'>Heute</md-button>
+					<md-button class='hide show-xs md-icon-button' aria-label='Spätere Ansicht' ng-click='mainCtrl.nextCalendarView()'>
+						<md-icon md-svg-icon='img/icons/ic_chevron_right.svg'></md-icon>
+					</md-button>
+				</section>
+				<div flex id='calendarContainer'>
+					<div ui-calendar='mainCtrl.calendarConfig' ng-model='mainCtrl.eventSources' calendar='eventCalendar'></div>
+				</div>
 			</md-content>
 		</div>
 </body>
