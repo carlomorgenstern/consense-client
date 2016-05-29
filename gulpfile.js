@@ -21,7 +21,6 @@ var htmlmin = require('gulp-htmlmin');
 
 // browserify and bundle js
 var browserify = require('browserify');
-var ngAnnotate = require('browserify-ngannotate');
 var watchify = require('watchify');
 
 // minify js
@@ -122,7 +121,6 @@ gulp.task('js', ['updateVendors'], () => {
 	var b = browserify({
 		entries: src.jsEntry,
 		plugin: [watchify],
-		//transform: [ngAnnotate],
 		debug: true
 	});
 

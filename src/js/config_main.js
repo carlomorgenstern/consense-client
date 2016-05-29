@@ -1,7 +1,7 @@
 'use strict';
 var moment = require('moment');
 
-module.exports = ['$mdDateLocaleProvider', '$mdThemingProvider', function($mdDateLocaleProvider, $mdThemingProvider) {
+module.exports = ['$mdDateLocaleProvider', '$mdIconProvider', '$mdThemingProvider', function($mdDateLocaleProvider, $mdIconProvider, $mdThemingProvider) {
 	// configuration for angular material date controls
 	$mdDateLocaleProvider.months = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
 	$mdDateLocaleProvider.shortMonths = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
@@ -17,6 +17,7 @@ module.exports = ['$mdDateLocaleProvider', '$mdThemingProvider', function($mdDat
 	$mdDateLocaleProvider.msgCalendar = 'Kalender';
 	$mdDateLocaleProvider.msgOpenCalendar = 'Kalender öffnen';
 
+
 	// configuration for date parsing by $mdDateLocale
 	$mdDateLocaleProvider.parseDate = function(dateString) {
 		var m = moment(dateString, 'DD.MM.YYYY', true);
@@ -26,6 +27,9 @@ module.exports = ['$mdDateLocaleProvider', '$mdThemingProvider', function($mdDat
 		return moment(date).format('DD.MM.YYYY');
 	};
 
+	$mdIconProvider.iconSet('material', '/img/iconset.svg');
+
+	// theme settings
 	$mdThemingProvider.theme('default')
 		.primaryPalette('red')
 		.accentPalette('orange');

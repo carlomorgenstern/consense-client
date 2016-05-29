@@ -1,10 +1,12 @@
-// make divs fill space
-.fill-size {
-  height: 100%;
-  width: 100%;
+.left-content-container {
+  min-height:50px
 }
 
-// hideing error-spacer for dateinput container
+// hiding error-spacer for dateinput container
+.dateinput-container {
+  margin-bottom: 2px;
+}
+
 .dateinput-container .md-errors-spacer {
     display: none;
 }
@@ -19,12 +21,8 @@
 
 // style fix for an always open md-calendar control
 // scaled in size with an css-transform
-.whiteframe-calendar-container {
-  margin: 6px auto 6px auto;
-  max-width: 340px;
-}
-
 .fixed-calendar {
+  margin: auto;
   width: 340px;
   height: 348px;
   display: block;
@@ -45,43 +43,43 @@
 }
 
 @media (max-width: 480px) {
-.small-md-datepicker {
-  min-width: 180px;
+  .small-md-datepicker {
+    min-width: 180px;
+  }
+  .small-md-datepicker .md-datepicker-button,.md-datepicker-input-container {
+    margin: 0px !important;
+  }
 }
-.small-md-datepicker .md-datepicker-button,.md-datepicker-input-container {
-  margin: 0px !important;
-} }
 
-// viewTabs
 .viewTabs {
   background: #f6f6f6;
   border: 1px solid #e1e1e1;
+}
+
+.calendarTitle {
+  color: white;
+  margin: 1px 8px 1px 8px;
+  padding: 0px 6px 0px 6px;
 }
 
 .buttonBar {
   background: #ef5350;
 }
 
-.viewButton {
+.calendarViewButton {
   color: white !important;
   height: 46px;
   margin-top: 1px;
   margin-bottom: 1px;
 }
 
-.monthHeading {
-  color: white;
-  margin: 1px 8px 1px 8px;
-  padding: 0px 6px 0px 6px;
-}
-
 @media (max-width: 959px) {
-.buttonBar {
-  height: 32px;
-}
-.viewButton {
-  height: 30px;
-}
+  .buttonBar {
+    height: 32px;
+  }
+  .calendarViewButton {
+    height: 30px;
+  }
 }
 
 .padder {
@@ -89,39 +87,21 @@
   width:10px;
 }
 
-.side-margin {
+.big-inputcontrol-margin {
   margin-left: 10px;
   margin-right: 10px;
 }
 
-.no-margin-bottom {
-  margin-bottom: 0px;
-}
-
-.margin-5 {
+.small-inputcontrol-margin {
   margin: 5px;
 }
-// others
-// #vertical-container {
-//     min-height: 300px;
-//     width: 100%;
-// }
-// .repeated-item {
-//     border-bottom: 1px dotted #757575;
-//     box-sizing: border-box;
-//     height: 50px;
-//     overflow: hidden;
-//     margin-right: 16px;
-// }
-// md-virtual-repeat-container {
-//   border: solid 1px grey; 
-// }
 
-// .no-margin {
-//   margin:0px !important;
-// }
+#calendarContainer {
+  overflow: hidden;
+}
 
-// .side-padding {
-//   padding-left: 10px;
-//   padding-right: 10px;
-// }
+@media (max-width: 399px) {
+  .xxsLayoutBreak {
+    flex-direction: column !important;
+  }
+}

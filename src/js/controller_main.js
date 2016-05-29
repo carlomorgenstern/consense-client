@@ -2,9 +2,11 @@
 var angular = require('angular');
 var moment = require('moment');
 require('../../vendor/js/fullcalendar/de.js');
-module.exports = ['$http', '$timeout', '$q', '$window', 'uiCalendarConfig', function($http, $timeout, $q, $window, uiCalendarConfig) {
+module.exports = ['$http', '$mdMedia', '$rootScope', '$timeout', '$q', '$window', 'uiCalendarConfig', function($http, $mdMedia, $rootScope, $timeout, $q, $window, uiCalendarConfig) {
 	var ctrl = this;
-	// variables
+	var calendarContainer = angular.element(document.querySelector('#calendarContainer'));
+
+	// scope variables
 	ctrl.selectedTab = 0;
 	ctrl.selectedDate = new Date();
 	ctrl.calendarTitle = "";
@@ -17,6 +19,7 @@ module.exports = ['$http', '$timeout', '$q', '$window', 'uiCalendarConfig', func
 
 	// calendar configuration
 	ctrl.calendarConfig = {
+		height: calendarContainer.prop('offsetHeight'),
 		lang: 'de',
 		header: false,
 		defaultView: 'agendaWeek',
@@ -36,11 +39,17 @@ module.exports = ['$http', '$timeout', '$q', '$window', 'uiCalendarConfig', func
 		}
 	};
 
-	// resizing the calendar on window resize
-	$window.addEventListener('resize', function() {
-		var calendarContainer = angular.element(document.querySelector('#calendarContainer'));
-		ctrl.calendarConfig.aspectRatio = calendarContainer.prop('offsetWidth') / calendarContainer.prop('offsetHeight');
-	});
+	ctrl.changeTab = function(newTab) {
+		ctrl.selectedTab = newTab;
+		ctrl.eventSources.splice(0, ctrl.eventSources.length);
+		if (newTab === 0) {
+			ctrl.eventSources.push(ctrl.courses.events);
+		} else if (newTab === 1) {
+			ctrl.eventSources.push(ctrl.speakers.events);
+		} else if (newTab === 2) {
+			ctrl.eventSources.push(ctrl.rooms.events);
+		}
+	};
 
 	// methods for controlling the calendar
 	ctrl.changeCalendarView = function(view) {
@@ -71,7 +80,11 @@ module.exports = ['$http', '$timeout', '$q', '$window', 'uiCalendarConfig', func
 	function changeCalendarTitle() {
 		var viewedDate = uiCalendarConfig.calendars.eventCalendar.fullCalendar('getDate');
 		if (uiCalendarConfig.calendars.eventCalendar.fullCalendar('getView').name === 'agendaDay') {
-			ctrl.calendarTitle = moment(viewedDate).format('dddd, [der] D. MMMM YYYY');
+			if ($mdMedia('xs')) {
+				ctrl.calendarTitle = moment(viewedDate).format('dddd');
+			} else {
+				ctrl.calendarTitle = moment(viewedDate).format('dddd, [der] D. MMMM YYYY');
+			}
 		} else if (uiCalendarConfig.calendars.eventCalendar.fullCalendar('getView').name === 'agendaWeek') {
 			ctrl.calendarTitle = moment(viewedDate).format('[KW] W: ') + moment(viewedDate).startOf('isoWeek').format('D. MMMM') + ' - ' +
 				moment(viewedDate).endOf('isoWeek').format('D. MMMM');
@@ -80,11 +93,35 @@ module.exports = ['$http', '$timeout', '$q', '$window', 'uiCalendarConfig', func
 
 	// setup calendar size and title on app startup
 	$timeout(function() {
-		var calendarContainer = angular.element(document.querySelector('#calendarContainer'));
-		ctrl.calendarConfig.aspectRatio = calendarContainer.prop('offsetWidth') / calendarContainer.prop('offsetHeight');
+		uiCalendarConfig.calendars.eventCalendar.fullCalendar('option', 'height', calendarContainer.prop('offsetHeight'));
 		ctrl.selectedDateChange(ctrl.selectedDate);
+
+		(function() {
+			var oldView;
+			$rootScope.$watch(function() {
+				return $mdMedia('xs');
+			}, function(xs) {
+				if (xs) {
+					oldView = uiCalendarConfig.calendars.eventCalendar.fullCalendar('getView').name;
+					ctrl.changeCalendarView('agendaDay');
+					changeCalendarTitle();
+				} else {
+					if (oldView === 'agendaWeek' || oldView === 'agendaDay') {
+						ctrl.changeCalendarView(oldView);
+					}
+					changeCalendarTitle();
+					oldView = '';
+				}
+			});
+		})();
 	});
 
+	// resize calendar on window resize
+	$window.addEventListener('resize', function() {
+		uiCalendarConfig.calendars.eventCalendar.fullCalendar('option', 'height', calendarContainer.prop('offsetHeight'));
+	});
+
+	// item handlers
 	function createItemHandler(type, apiCall, apiEventCall) {
 		var allItems = [];
 		var eventsForItem = [];
@@ -155,7 +192,6 @@ module.exports = ['$http', '$timeout', '$q', '$window', 'uiCalendarConfig', func
 							});
 						});
 						deferred.resolve();
-						console.log(eventsForItem);
 					}, function(error) {
 						deferred.reject(error);
 					});
@@ -168,6 +204,7 @@ module.exports = ['$http', '$timeout', '$q', '$window', 'uiCalendarConfig', func
 		return {
 			selected: null,
 			searchText: '',
+			events: eventsForItem,
 			updateItems: updateItems,
 			querySearch: querySearch,
 			selectedChange: selectedChange
