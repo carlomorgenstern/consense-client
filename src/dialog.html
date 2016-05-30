@@ -1,0 +1,62 @@
+<md-dialog aria-label="event.title"  ng-cloak>
+  <form>
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>event.title</h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="dialogControl.closeDialog()">
+          <md-icon md-svg-icon="material:close" aria-label="Dialog schließen"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content>
+      <div flex class="md-dialog-content">
+        <table>
+          <col style='text-align:right'/>
+          <tr>
+            <td>Titel:</td>
+            <td>{{dialogControl.event.title}}</td>
+          </tr>
+          <tr>
+            <td>Startzeit:</td>
+            <td>{{dialogControl.event.start.toISOString()}}</td>
+          </tr>
+          <tr>
+            <td>Endzeit:</td>
+            <td>{{dialogControl.event.start.toISOString()}}</td>
+          </tr>
+          <tr>
+            <td>Raum:</td>
+            <td>{{dialogControl.event.roomNames.join(', ')}}</td>
+          </tr>
+          <tr>
+            <td>Dozent:</td>
+            <td>{{dialogControl.event.speakerNames.join(', ')}}</td>
+          </tr>
+          <tr>
+            <td>Art der Veranstaltung:</td>
+            <td>{{dialogControl.event.customEventType}}</td>
+          </tr>
+          <tr ng-show='dialogControl.event.customEventGroup'>
+            <td>Veranstaltungsuntergruppe:</td>
+            <td>{{dialogControl.event.customEventGroup}}</td>
+          </tr>
+          <tr ng-show='dialogControl.event.customComment'>
+            <td>Kommentar:</td>
+            <td>{{dialogControl.event.customComment}}</td>
+          </tr>
+          <tr>
+            <td>Kurse:</td>
+            <td>{{dialogControl.event.courseNames.join(', ')}}</td>
+          </tr>
+        </table>
+      </div>
+    </md-dialog-content>
+    <md-dialog-actions layout="row">
+      <span flex></span>
+      <md-button ng-click="dialogControl.closeDialog()" style="margin-right:20px;">
+        Schließen
+      </md-button>
+    </md-dialog-actions>
+  </form>
+</md-dialog>

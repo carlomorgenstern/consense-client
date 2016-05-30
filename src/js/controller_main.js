@@ -2,7 +2,7 @@
 var angular = require('angular');
 var moment = require('moment');
 require('../../vendor/js/fullcalendar/de.js');
-module.exports = ['$http', '$mdMedia', '$rootScope', '$timeout', '$q', '$window', 'uiCalendarConfig', function($http, $mdMedia, $rootScope, $timeout, $q, $window, uiCalendarConfig) {
+module.exports = ['$http', '$mdDialog', '$mdMedia', '$rootScope', '$scope', '$timeout', '$q', '$window', 'uiCalendarConfig', function($http, $mdDialog, $mdMedia, $rootScope, $scope, $timeout, $q, $window, uiCalendarConfig) {
 	var ctrl = this;
 	var calendarContainer = angular.element(document.querySelector('#calendarContainer'));
 
@@ -13,14 +13,15 @@ module.exports = ['$http', '$mdMedia', '$rootScope', '$timeout', '$q', '$window'
 	ctrl.eventSources = [];
 
 	// handlers for courses, speakers, rooms
-	ctrl.courses = createItemHandler('course', 'http://localhost:8080/api/courses');
-	ctrl.speakers = createItemHandler('speaker', 'http://localhost:8080/api/speakers');
-	ctrl.rooms = createItemHandler('room', 'http://localhost:8080/api/rooms', "http://localhost:8080/api/room/");
+	ctrl.courses = createItemHandler('course', 'http://localhost:3500/api/courses', 'http://localhost:3500/api/events/course/');
+	ctrl.speakers = createItemHandler('speaker', 'http://localhost:3500/api/speakers', 'http://localhost:3500/api/events/speaker/');
+	ctrl.rooms = createItemHandler('room', 'http://localhost:3500/api/rooms', 'http://localhost:3500/api/events/room/');
 
 	// calendar configuration
 	ctrl.calendarConfig = {
 		height: calendarContainer.prop('offsetHeight'),
 		lang: 'de',
+		timezone: 'local',
 		header: false,
 		defaultView: 'agendaWeek',
 		views: {
@@ -33,21 +34,27 @@ module.exports = ['$http', '$mdMedia', '$rootScope', '$timeout', '$q', '$window'
 			agendaWeek: {
 				columnFormat: 'dd DD.MM.'
 			},
+			agendaWeekDay: {
+				columnFormat: 'dd DD.MM.',
+				type: 'agendaWeek',
+				hiddenDays: [0, 6]
+			},
 			agendaDay: {
 				columnFormat: 'DD.MM.YYYY'
 			}
-		}
+		},
+		eventClick: showEventDialog
 	};
 
 	ctrl.changeTab = function(newTab) {
 		ctrl.selectedTab = newTab;
-		ctrl.eventSources.splice(0, ctrl.eventSources.length);
+		uiCalendarConfig.calendars.eventCalendar.fullCalendar('removeEvents');
 		if (newTab === 0) {
-			ctrl.eventSources.push(ctrl.courses.events);
+			uiCalendarConfig.calendars.eventCalendar.fullCalendar('addEventSource', ctrl.courses.events);
 		} else if (newTab === 1) {
-			ctrl.eventSources.push(ctrl.speakers.events);
+			uiCalendarConfig.calendars.eventCalendar.fullCalendar('addEventSource', ctrl.speakers.events);
 		} else if (newTab === 2) {
-			ctrl.eventSources.push(ctrl.rooms.events);
+			uiCalendarConfig.calendars.eventCalendar.fullCalendar('addEventSource', ctrl.rooms.events);
 		}
 	};
 
@@ -88,6 +95,9 @@ module.exports = ['$http', '$mdMedia', '$rootScope', '$timeout', '$q', '$window'
 		} else if (uiCalendarConfig.calendars.eventCalendar.fullCalendar('getView').name === 'agendaWeek') {
 			ctrl.calendarTitle = moment(viewedDate).format('[KW] W: ') + moment(viewedDate).startOf('isoWeek').format('D. MMMM') + ' - ' +
 				moment(viewedDate).endOf('isoWeek').format('D. MMMM');
+		} else if (uiCalendarConfig.calendars.eventCalendar.fullCalendar('getView').name === 'agendaWeekDay') {
+			ctrl.calendarTitle = moment(viewedDate).format('[KW] W: ') + moment(viewedDate).startOf('isoWeek').format('D. MMMM') + ' - ' +
+				moment(viewedDate).isoWeekday(5).format('D. MMMM');
 		}
 	}
 
@@ -121,6 +131,32 @@ module.exports = ['$http', '$mdMedia', '$rootScope', '$timeout', '$q', '$window'
 		uiCalendarConfig.calendars.eventCalendar.fullCalendar('option', 'height', calendarContainer.prop('offsetHeight'));
 	});
 
+	// event dialog
+	function showEventDialog(event) {
+		var DialogController = function($mdDialog) {
+			var ctrl = this;
+			ctrl.closeDialog = function() {
+				$mdDialog.hide();
+			};
+			console.log(ctrl.event);
+		};
+		DialogController.$inject = ['$mdDialog'];
+
+		$mdDialog.show({
+			//template: 'html',
+			templateUrl: 'dialog.html',
+			parent: angular.element(document.querySelector('#calendarContainer')),
+			clickOutsideToClose: true,
+			locals: {
+				event: event
+			},
+			bindToController: true,
+			//scope: maybe,
+			controller: DialogController,
+			controllerAs: 'dialogControl'
+		});
+	}
+
 	// item handlers
 	function createItemHandler(type, apiCall, apiEventCall) {
 		var allItems = [];
@@ -137,11 +173,11 @@ module.exports = ['$http', '$mdMedia', '$rootScope', '$timeout', '$q', '$window'
 					responseType: "json"
 				})
 				.then(function(response) {
-					allItems = response.data.map(function(item) {
-						return {
-							value: item.toLowerCase(),
-							display: item
-						};
+					response.data.forEach(function(entry) {
+						allItems.push({
+							id: entry.id,
+							name: entry.name
+						});
 					});
 					$q.resolve();
 					updateItemsDeferred = null;
@@ -160,24 +196,24 @@ module.exports = ['$http', '$mdMedia', '$rootScope', '$timeout', '$q', '$window'
 				if (allItems.length === 0) {
 					return updateItems().then(function() {
 						return $q.resolve(allItems.filter(function(item) {
-							return (item.value.indexOf(searchTextLower) !== -1);
+							return (item.name.toLowerCase().indexOf(searchTextLower) !== -1);
 						}));
 					});
 				} else {
 					return $q.resolve(allItems.filter(function(item) {
-						return (item.value.indexOf(searchTextLower) !== -1);
+						return (item.name.toLowerCase().indexOf(searchTextLower) !== -1);
 					}));
 				}
 			}
 		};
 
 		var selectedChange = function(newItem) {
-			if (newItem === undefined || newItem.display === "") {
+			if (newItem === undefined) {
 				eventsForItem.splice(0, eventsForItem.length);
 				return $q.resolve();
 			} else {
 				var deferred = $q.defer();
-				var url = apiEventCall + btoa(newItem);
+				var url = apiEventCall + newItem.id;
 				$http.get(url, {
 						responseType: "json"
 					})
@@ -185,12 +221,24 @@ module.exports = ['$http', '$mdMedia', '$rootScope', '$timeout', '$q', '$window'
 						eventsForItem.splice(0, eventsForItem.length);
 						response.data.forEach(function(entry) {
 							eventsForItem.push({
-								title: entry.EventName,
-								start: entry.StartDate,
-								end: entry.EndDate,
-								description: "Dozent: " + entry.Speaker + " Raum: " + entry.Location
+								id: entry.id,
+								title: entry.title,
+								start: entry.start,
+								end: entry.end,
+								customEventType: entry.customEventType,
+								customEventGroup: entry.customEventGroup,
+								customComment: entry.customComment,
+								courseUIDs: entry.courseUIDs,
+								courseNames: entry.courseNames,
+								speakerUIDs: entry.speakerUIDs,
+								speakerNames: entry.speakerNames,
+								roomUIDs: entry.roomUIDs,
+								roomNames: entry.roomNames
 							});
 						});
+						console.log(eventsForItem);
+						uiCalendarConfig.calendars.eventCalendar.fullCalendar('removeEvents');
+						uiCalendarConfig.calendars.eventCalendar.fullCalendar('addEventSource', eventsForItem);
 						deferred.resolve();
 					}, function(error) {
 						deferred.reject(error);

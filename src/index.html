@@ -57,10 +57,10 @@
 				        md-search-text='mainCtrl.courses.searchText'
 				        md-items='item in mainCtrl.courses.querySearch(mainCtrl.courses.searchText)'
 				        md-selected-item-change='mainCtrl.courses.selectedChange(item)'
-				        md-item-text='item.display'
+				        md-item-text='item.name'
 				    	placeholder='Anzuzeigender Kurs'>
 				        <md-item-template>
-				          <span md-highlight-text='mainCtrl.courses.searchText' md-highlight-flags='i'>{{item.display}}</span>
+				          <span md-highlight-text='mainCtrl.courses.searchText' md-highlight-flags='i'>{{item.name}}</span>
 				        </md-item-template>
 				        <md-not-found>
 				        	Kein passender Kurs gefunden.
@@ -73,10 +73,10 @@
 				        md-search-text='mainCtrl.speakers.searchText'
 				        md-items='item in mainCtrl.speakers.querySearch(mainCtrl.speakers.searchText)'
 				        md-selected-item-change='mainCtrl.speakers.selectedChange(item)'
-				        md-item-text='item.display'
+				        md-item-text='item.name'
 				    	placeholder='Anzuzeigender Dozent'>
 				        <md-item-template>
-				          <span md-highlight-text='mainCtrl.speakers.searchText' md-highlight-flags='i'>{{item.display}}</span>
+				          <span md-highlight-text='mainCtrl.speakers.searchText' md-highlight-flags='i'>{{item.name}}</span>
 				        </md-item-template>
 				        <md-not-found>
 				        	Kein passender Dozent gefunden.
@@ -89,10 +89,10 @@
 				        md-search-text='mainCtrl.rooms.searchText'
 				        md-items='item in mainCtrl.rooms.querySearch(mainCtrl.rooms.searchText)'
 				        md-selected-item-change='mainCtrl.rooms.selectedChange(item)'
-				        md-item-text='item.display'
+				        md-item-text='item.name'
 				    	placeholder='Anzuzeigender Raum'>
 				        <md-item-template>
-				          <span md-highlight-text='mainCtrl.rooms.searchText' md-highlight-flags='i'>{{item.display}}</span>
+				          <span md-highlight-text='mainCtrl.rooms.searchText' md-highlight-flags='i'>{{item.name}}</span>
 				        </md-item-template>
 				        <md-not-found>
 				        	Kein passender Raum gefunden.
@@ -110,11 +110,10 @@
 	       				md-no-cache='true' md-min-length='0'
 				        md-search-text='mainCtrl.courses.searchText'
 				        md-items='item in mainCtrl.courses.querySearch(mainCtrl.courses.searchText)'
-				        md-selected-item-change='mainCtrl.courses.selectedChange(item)'
-				        md-item-text='item.display'
+				        md-item-text='item.name'
 				    	placeholder='Anzuzeigender Kurs'>
 				        <md-item-template>
-				          <span md-highlight-text='mainCtrl.courses.searchText' md-highlight-flags='i'>{{item.display}}</span>
+				          <span md-highlight-text='mainCtrl.courses.searchText' md-highlight-flags='i'>{{item.name}}</span>
 				        </md-item-template>
 				        <md-not-found>
 				        	Kein passender Kurs gefunden.
@@ -126,11 +125,10 @@
 	       				md-no-cache='true' md-min-length='0'
 				        md-search-text='mainCtrl.speakers.searchText'
 				        md-items='item in mainCtrl.speakers.querySearch(mainCtrl.speakers.searchText)'
-				        md-selected-item-change='mainCtrl.speakers.selectedChange(item)'
-				        md-item-text='item.display'
+				        md-item-text='item.name'
 				    	placeholder='Anzuzeigender Dozent'>
 				        <md-item-template>
-				          <span md-highlight-text='mainCtrl.speakers.searchText' md-highlight-flags='i'>{{item.display}}</span>
+				          <span md-highlight-text='mainCtrl.speakers.searchText' md-highlight-flags='i'>{{item.name}}</span>
 				        </md-item-template>
 				        <md-not-found>
 				        	Kein passender Dozent gefunden.
@@ -142,11 +140,10 @@
 	       				md-no-cache='true' md-min-length='0'
 				        md-search-text='mainCtrl.rooms.searchText'
 				        md-items='item in mainCtrl.rooms.querySearch(mainCtrl.rooms.searchText)'
-				        md-selected-item-change='mainCtrl.rooms.selectedChange(item)'
-				        md-item-text='item.display'
+				        md-item-text='item.name'
 				    	placeholder='Anzuzeigender Raum'>
 				        <md-item-template>
-				          <span md-highlight-text='mainCtrl.rooms.searchText' md-highlight-flags='i'>{{item.display}}</span>
+				          <span md-highlight-text='mainCtrl.rooms.searchText' md-highlight-flags='i'>{{item.name}}</span>
 				        </md-item-template>
 				        <md-not-found>
 				        	Kein passender Raum gefunden.
@@ -166,6 +163,7 @@
 					</md-button>
 					<div flex></div>
 					<md-button class='calendarViewButton' ng-click='mainCtrl.changeCalendarView("agendaWeek")'>Wochenansicht</md-button>
+					<md-button class='calendarViewButton' ng-click='mainCtrl.changeCalendarView("agendaWeekDay")'>5-Tage-Ansicht</md-button>
 					<md-button class='calendarViewButton' ng-click='mainCtrl.changeCalendarView("agendaDay")'>Tagesansicht</md-button>
 					<div flex></div>
 					<md-button class='md-icon-button' aria-label='Spätere Ansicht' ng-click='mainCtrl.nextCalendarView()'>
